@@ -130,13 +130,22 @@ int main(int argc, char *argv[])
     nh_private.getParam("mask", mask_std);
     Vector<6,int> mask = wrapVector(mask_std.data(), mask_std.size());
 
+    std::vector<double> n_T_e_position_std;
+    nh_private.getParam("n_T_e_position", n_T_e_position_std);
+    Vector<3> n_T_e_position = wrapVector(n_T_e_position_std.data(), n_T_e_position_std.size());
+
+    std::vector<double> n_T_e_quaternion_std;
+    nh_private.getParam("n_T_e_quaternion", n_T_e_quaternion_std);
+    UnitQuaternion n_T_e_quaternion( wrapVector(n_T_e_quaternion_std.data(), n_T_e_quaternion_std.size()) );
+
     //Publishers
     pub_joints = nh_public.advertise<motoman_interface::JointPositionVelocity>(topic_joint_command_str, 1);
 
     //Service
     serviceGetJoint = nh_public.serviceClient<motoman_interface::GetJoints>(service_get_joints_str);
 
-    Matrix<4,4> n_T_e = Identity;
+    Matrix<4,4> n_T_e = transl(n_T_e_position);
+    n_T_e.slice<0,0,3,3>() = n_T_e_quaternion.torot();
     
     CLIK_Node clik_node(
             MotomanSIA5F( n_T_e, dls_joint_speed_saturation, "SIA5F" ), 
