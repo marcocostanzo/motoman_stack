@@ -18,6 +18,10 @@
 
   <arg name="out_joint_command_topic" default="joint_command"/>
 
+  <arg name="joint_state_topic" default="joint_states"/>
+
+  <arg name="get_joints_service" default="getJoints"/>
+
 	<rosparam command="load" file="$(find motoman_sia5d_support)/config/joint_names_sia5d.yaml" />
 
 	<include file="$(find motoman_driver)/launch/robot_interface_streaming_$(arg controller).launch">
@@ -29,6 +33,10 @@
       <param name="in_joint_command_topic" type="string" value="$(arg in_joint_command_topic)"/>
 
       <param name="out_joint_command_topic" type="string" value="$(arg out_joint_command_topic)"/>
+
+      <param name="joint_state_topic" type="string" value="$(arg joint_state_topic)"/>
+
+      <param name="get_joints_service" type="string" value="$(arg get_joints_service)"/>
 
 </node>
 
