@@ -109,6 +109,8 @@ int main(int argc, char *argv[])
     nh_private.param("desired_pose_twist_topic" , desired_pose_twist_topic_str, string("desired_pose_twist") );
     string set_stopped_service;
     nh_private.param("set_stopped_service" , set_stopped_service, string("set_stopped") );
+    string get_status_service;
+    nh_private.param("get_status_service" , get_status_service, string("get_status") );
     double clik_gain;
     nh_private.param("clik_gain" , clik_gain, 0.5 );
     double dls_joint_speed_saturation;
@@ -152,6 +154,7 @@ int main(int argc, char *argv[])
             nh_public,
             desired_pose_twist_topic_str, 
             set_stopped_service,
+            get_status_service,
             getJointPosition_fcn, 
             publish_fcn,
             clik_gain,

@@ -16,7 +16,9 @@
 
   <arg name="desired_pose_twist_topic" default="desired_posetwist"/>
 
-  <arg name="set_stopped_service" default="set_stop"/>
+  <arg name="set_stopped_service" default="clik/set_stop"/>
+
+  <arg name="get_status_service" default="clik/get_status"/>
 
   <arg name="clik_gain" default="0.5"/>
 
@@ -58,6 +60,8 @@
       <param name="desired_pose_twist_topic" type="string" value="$(arg desired_pose_twist_topic)"/>
 
       <param name="set_stopped_service" type="string" value="$(arg set_stopped_service)"/>
+
+      <param name="get_status_service" type="string" value="$(arg get_status_service)"/>
 
       <param name="clik_gain" value="$(arg clik_gain)"/>
 
