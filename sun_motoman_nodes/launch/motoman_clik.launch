@@ -30,7 +30,7 @@
 
   <arg name="start_stopped" default="true"/>
 
-  <arg name="joint_target" default="[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]"/>
+  <arg name="joint_target" default="[0.0, 0.0, 0.0, 1.788, 0.0, 0.0, 0.0]"/>
 
   <arg name="joint_weights" default="[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]"/>
 
