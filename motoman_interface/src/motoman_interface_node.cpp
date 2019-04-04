@@ -33,6 +33,7 @@
 #define HEADER_PRINT BOLDYELLOW "[" << ros::this_node::getName() << "] " CRESET 
 
 #define NUM_JOINTS 7
+#define COMMAND_RATE 50
 
 using namespace std;
 
@@ -62,8 +63,6 @@ void readJointCommand(const motoman_interface::JointPositionVelocity::ConstPtr& 
     out_jointTraj_msg.points[0].velocities[5] = jointCommandMsg->velocity.b;
     out_jointTraj_msg.points[0].velocities[6] = jointCommandMsg->velocity.t;
 
-    out_joint_command_pub.publish(out_jointTraj_msg);
-
 }
 
 sensor_msgs::JointState joint_state_msg;
@@ -76,16 +75,7 @@ void readJointState( const sensor_msgs::JointState& joi_state_msg ){
 bool getJoints(motoman_interface::GetJoints::Request  &req, 
    		 		motoman_interface::GetJoints::Response &res){
 
-    cout << HEADER_PRINT "Service getJoints()..." << endl;
-
-    ros::Subscriber joint_position_sub = ros::NodeHandle().subscribe(joint_state_topic_str, 1, readJointState);
-
-    b_joint_state_arrived = false;
-    cout << HEADER_PRINT YELLOW "Wait for joint positions..." << CRESET << endl;
-    while(ros::ok() && !b_joint_state_arrived){
-        ros::spinOnce();
-    }
-    cout << HEADER_PRINT GREEN "Done!" << CRESET << endl;
+    cout << HEADER_PRINT "Service getJoints()" << endl;
 
     res.position.s = joint_state_msg.position[0];
     res.position.l = joint_state_msg.position[1];
@@ -96,7 +86,6 @@ bool getJoints(motoman_interface::GetJoints::Request  &req,
     res.position.t = joint_state_msg.position[6];
     
     res.success = true;
-    b_joint_state_arrived = false;
     return true;
 }
 
@@ -121,12 +110,7 @@ int main(int argc, char *argv[])
 
     /* Subscriber.*/
 	ros::Subscriber in_joint_command_sub = nh_public.subscribe(in_joint_command_topic_str, 1, readJointCommand);
-
-    /* Publisher.*/
-	out_joint_command_pub = nh_public.advertise<trajectory_msgs::JointTrajectory>(out_joint_command_topic_str, 1);
-
-    /*Server.*/
-    ros::ServiceServer serviceGetJoints = nh_public.advertiseService( service_get_joints_str, getJoints);
+    ros::Subscriber joint_position_sub = nh_public.subscribe(joint_state_topic_str, 1, readJointState);
 
     /*ROSMSGs*/
     out_jointTraj_msg.points.resize(1);
@@ -141,8 +125,49 @@ int main(int argc, char *argv[])
 	out_jointTraj_msg.joint_names.push_back("joint_t");
     out_jointTraj_msg.points[0].time_from_start = ros::Duration(0.0);
 
-    /*SPIN*/
-    ros::spin();
+    //wait joint state
+    cout << HEADER_PRINT "Wait initial joint position..." << endl;
+    while( ros::ok() && !b_joint_state_arrived ){
+        ros::spinOnce();
+    }
+    cout << HEADER_PRINT "Initial joint position arrived!" << endl;
+
+    /* Publisher.*/
+	out_joint_command_pub = nh_public.advertise<trajectory_msgs::JointTrajectory>(out_joint_command_topic_str, 1);
+
+    /*Server.*/
+    ros::ServiceServer serviceGetJoints = nh_public.advertiseService( service_get_joints_str, getJoints);
+
+    //Initialize joint command
+    out_jointTraj_msg.points[0].positions[0] = joint_state_msg.position[0];
+    out_jointTraj_msg.points[0].positions[1] = joint_state_msg.position[1];
+    out_jointTraj_msg.points[0].positions[2] = joint_state_msg.position[2];
+    out_jointTraj_msg.points[0].positions[3] = joint_state_msg.position[3];
+    out_jointTraj_msg.points[0].positions[4] = joint_state_msg.position[4];
+    out_jointTraj_msg.points[0].positions[5] = joint_state_msg.position[5];
+    out_jointTraj_msg.points[0].positions[6] = joint_state_msg.position[6];
+
+    out_jointTraj_msg.points[0].velocities[0] = 0.0;
+    out_jointTraj_msg.points[0].velocities[1] = 0.0;
+    out_jointTraj_msg.points[0].velocities[2] = 0.0;
+    out_jointTraj_msg.points[0].velocities[3] = 0.0;
+    out_jointTraj_msg.points[0].velocities[4] = 0.0;
+    out_jointTraj_msg.points[0].velocities[5] = 0.0;
+    out_jointTraj_msg.points[0].velocities[6] = 0.0;
+
+
+    ros::Rate loop_rate(COMMAND_RATE);
+    double initial_time = ros::Time::now().toSec();
+    while(ros::ok()){
+        ros::spinOnce();
+
+        out_jointTraj_msg.points[0].time_from_start = ros::Duration(ros::Time::now().toSec() - initial_time);
+        out_joint_command_pub.publish(out_jointTraj_msg);
+
+        loop_rate.sleep();
+    }
+
+    cout << HEADER_PRINT BOLDRED "END!" CRESET << endl;
     
     return 0;
 }

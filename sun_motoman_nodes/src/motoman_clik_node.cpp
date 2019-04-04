@@ -113,6 +113,8 @@ int main(int argc, char *argv[])
     nh_private.param("get_status_service" , get_status_service, string("get_status") );
     double clik_gain;
     nh_private.param("clik_gain" , clik_gain, 0.5 );
+    double hz;
+    nh_private.param("hz" , hz, 1000.0 );
     double dls_joint_speed_saturation;
     nh_private.param("dls_joint_speed_saturation" , dls_joint_speed_saturation, 3.0 );
     double second_obj_gain;
@@ -146,6 +148,10 @@ int main(int argc, char *argv[])
     //Service
     serviceGetJoint = nh_public.serviceClient<motoman_interface::GetJoints>(service_get_joints_str);
 
+    cout << HEADER_PRINT "Wait for service getJoint Existence..." << endl;
+    serviceGetJoint.waitForExistence();
+    cout << HEADER_PRINT GREEN "Service getJoint online!" CRESET << endl;
+
     Matrix<4,4> n_T_e = transl(n_T_e_position);
     n_T_e.slice<0,0,3,3>() = n_T_e_quaternion.torot();
     
@@ -158,6 +164,7 @@ int main(int argc, char *argv[])
             getJointPosition_fcn, 
             publish_fcn,
             clik_gain,
+            hz,
             second_obj_gain,
             joint_target,
             joint_weights,
