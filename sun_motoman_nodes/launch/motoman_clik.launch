@@ -30,11 +30,11 @@
 
   <arg name="start_stopped" default="true"/>
 
-  <arg name="joint_target" default="[0.0, 0.0, 0.0, 1.788, 0.0, 0.0, 0.0]"/>
+  <arg name="joint_target_dh" default="[0.0, 0.0, 0.0, 1.788, 0.0, 0.0, 0.0]"/>
 
   <arg name="joint_weights" default="[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]"/>
 
-  <arg name="mask" default="[1, 1, 1, 1, 1, 1]"/>
+  <arg name="mask_cartesian" default="[1, 1, 1, 1, 1, 1]"/>
 
   <arg name="n_T_e_position" default="[0.0, 0.0, 0.0]"/>
   <arg name="n_T_e_quaternion" default="[1.0, 0.0, 0.0, 0.0]"/>
@@ -75,11 +75,11 @@
 
       <param name="start_stopped" value="$(arg start_stopped)"/>
 
-      <rosparam param="joint_target" subst_value="true">$(arg joint_target)</rosparam>
+      <rosparam param="joint_target_dh" subst_value="true">$(arg joint_target_dh)</rosparam>
 
       <rosparam param="joint_weights" subst_value="true">$(arg joint_weights)</rosparam>
 
-      <rosparam param="mask" subst_value="true">$(arg mask)</rosparam>
+      <rosparam param="mask_cartesian" subst_value="true">$(arg mask_cartesian)</rosparam>
 
       <rosparam param="n_T_e_position" subst_value="true">$(arg n_T_e_position)</rosparam>
       <rosparam param="n_T_e_quaternion" subst_value="true">$(arg n_T_e_quaternion)</rosparam>

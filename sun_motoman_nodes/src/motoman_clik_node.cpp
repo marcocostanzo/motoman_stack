@@ -105,43 +105,7 @@ int main(int argc, char *argv[])
     nh_private.param("joint_command_topic" , topic_joint_command_str, string("simple_joint_command") );
     string service_get_joints_str;
     nh_private.param("service_get_joints" , service_get_joints_str, string("getJoints") );
-    string desired_pose_twist_topic_str;
-    nh_private.param("desired_pose_twist_topic" , desired_pose_twist_topic_str, string("desired_pose_twist") );
-    string set_stopped_service;
-    nh_private.param("set_stopped_service" , set_stopped_service, string("set_stopped") );
-    string get_status_service;
-    nh_private.param("get_status_service" , get_status_service, string("get_status") );
-    double clik_gain;
-    nh_private.param("clik_gain" , clik_gain, 0.5 );
-    double hz;
-    nh_private.param("hz" , hz, 1000.0 );
-    double dls_joint_speed_saturation;
-    nh_private.param("dls_joint_speed_saturation" , dls_joint_speed_saturation, 3.0 );
-    double second_obj_gain;
-    nh_private.param("second_obj_gain" , second_obj_gain, 0.0 );
-    bool start_stopped;
-    nh_private.param("start_stopped" , start_stopped, true );
-
-    std::vector<double> joint_target_std;
-    nh_private.getParam("joint_target", joint_target_std);
-    Vector<> joint_target = wrapVector(joint_target_std.data(), joint_target_std.size());
-
-    std::vector<double> joint_weights_std;
-    nh_private.getParam("joint_weights", joint_weights_std);
-    Vector<> joint_weights = wrapVector(joint_weights_std.data(), joint_weights_std.size());
-
-    std::vector<int> mask_std;
-    nh_private.getParam("mask", mask_std);
-    Vector<6,int> mask = wrapVector(mask_std.data(), mask_std.size());
-
-    std::vector<double> n_T_e_position_std;
-    nh_private.getParam("n_T_e_position", n_T_e_position_std);
-    Vector<3> n_T_e_position = wrapVector(n_T_e_position_std.data(), n_T_e_position_std.size());
-
-    std::vector<double> n_T_e_quaternion_std;
-    nh_private.getParam("n_T_e_quaternion", n_T_e_quaternion_std);
-    UnitQuaternion n_T_e_quaternion( wrapVector(n_T_e_quaternion_std.data(), n_T_e_quaternion_std.size()) );
-
+    
     //Publishers
     pub_joints = nh_public.advertise<motoman_interface::JointPositionVelocity>(topic_joint_command_str, 1);
 
@@ -151,25 +115,13 @@ int main(int argc, char *argv[])
     cout << HEADER_PRINT "Wait for service getJoint Existence..." << endl;
     serviceGetJoint.waitForExistence();
     cout << HEADER_PRINT GREEN "Service getJoint online!" CRESET << endl;
-
-    Matrix<4,4> n_T_e = transl(n_T_e_position);
-    n_T_e.slice<0,0,3,3>() = n_T_e_quaternion.torot();
     
     CLIK_Node clik_node(
-            MotomanSIA5F( n_T_e, dls_joint_speed_saturation, "SIA5F" ), 
+            MotomanSIA5F( "SIA5F" ),
             nh_public,
-            desired_pose_twist_topic_str, 
-            set_stopped_service,
-            get_status_service,
+            nh_private,
             getJointPosition_fcn, 
-            publish_fcn,
-            clik_gain,
-            hz,
-            second_obj_gain,
-            joint_target,
-            joint_weights,
-            mask,
-            start_stopped
+            publish_fcn
             );
 
     clik_node.run();
