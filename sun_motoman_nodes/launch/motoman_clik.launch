@@ -16,9 +16,13 @@
 
   <arg name="desired_pose_twist_topic" default="desired_posetwist"/>
 
-  <arg name="set_stopped_service" default="clik/set_stop"/>
+  <arg name="desired_q_topic" default="desired_q"/>
+
+  <arg name="set_mode_service" default="clik/set_mode"/>
 
   <arg name="get_status_service" default="clik/get_status"/>
+
+  <arg name="set_params_service" default="clik/set_params"/>
 
   <arg name="clik_gain" default="0.5"/>
 
@@ -28,9 +32,7 @@
 
   <arg name="second_obj_gain" default="0.0"/>
 
-  <arg name="start_stopped" default="true"/>
-
-  <arg name="joint_target_dh" default="[0.0, 0.0, 0.0, 1.788, 0.0, 0.0, 0.0]"/>
+  <arg name="joint_target_robot" default="[0.0, 0.0, 0.0, 1.7881, 0.0, 0.0, 0.0]"/>
 
   <arg name="joint_weights" default="[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]"/>
 
@@ -61,9 +63,13 @@
 
       <param name="desired_pose_twist_topic" type="string" value="$(arg desired_pose_twist_topic)"/>
 
-      <param name="set_stopped_service" type="string" value="$(arg set_stopped_service)"/>
+      <param name="desired_q_topic" type="string" value="$(arg desired_q_topic)"/>
+
+      <param name="set_mode_service" type="string" value="$(arg set_mode_service)"/>
 
       <param name="get_status_service" type="string" value="$(arg get_status_service)"/>
+
+      <param name="set_params_service" type="string" value="$(arg set_params_service)"/>
 
       <param name="clik_gain" value="$(arg clik_gain)"/>
 
@@ -73,9 +79,7 @@
 
       <param name="second_obj_gain" value="$(arg second_obj_gain)"/>
 
-      <param name="start_stopped" value="$(arg start_stopped)"/>
-
-      <rosparam param="joint_target_dh" subst_value="true">$(arg joint_target_dh)</rosparam>
+      <rosparam param="joint_target_robot" subst_value="true">$(arg joint_target_robot)</rosparam>
 
       <rosparam param="joint_weights" subst_value="true">$(arg joint_weights)</rosparam>
 
