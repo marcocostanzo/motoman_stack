@@ -6,23 +6,6 @@
 <launch>
 
   <arg name="robot_ip" />
-	
-  <!-- controller: Controller name (fs100 or dx100) -->
-  <arg name="controller" default="fs100"/>
-
-  <arg name="joint_command_topic" default="simple_joint_command"/>
-
-  <arg name="get_joints_service" default="getJoints"/>
-
-  <arg name="desired_pose_twist_topic" default="desired_posetwist"/>
-
-  <arg name="desired_q_topic" default="desired_q"/>
-
-  <arg name="set_mode_service" default="clik/set_mode"/>
-
-  <arg name="get_status_service" default="clik/get_status"/>
-
-  <arg name="set_params_service" default="clik/set_params"/>
 
   <arg name="clik_gain" default="0.5"/>
 
@@ -32,44 +15,27 @@
 
   <arg name="second_obj_gain" default="0.0"/>
 
+  <!--
   <arg name="joint_target_robot" default="[0.0, 0.0, 0.0, 1.7881, 0.0, 0.0, 0.0]"/>
+  -->
 
   <arg name="joint_weights" default="[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]"/>
 
+  <!--
   <arg name="mask_cartesian" default="[1, 1, 1, 1, 1, 1]"/>
+  -->
 
-  <arg name="n_T_e_position" default="[0.0, 0.0, 0.0]"/>
+  <arg name="n_T_e_position" default="[0.0, 0.0, 0.1]"/>
   <arg name="n_T_e_quaternion" default="[1.0, 0.0, 0.0, 0.0]"/>
 
 
   <include file="$(find motoman_interface)/launch/robot_interface_streaming_sia5d.launch">
 
     <arg name="robot_ip" value="$(arg robot_ip)" />
-	
-    <!-- controller: Controller name (fs100 or dx100) -->
-    <arg name="controller" value="$(arg controller)"/>
-
-    <arg name="in_joint_command_topic" value="$(arg joint_command_topic)"/>
-
-    <arg name="get_joints_service" value="$(arg get_joints_service)"/>
 
   </include>
 
   <node name="motoman_clik"  pkg="sun_motoman_nodes" type="motoman_clik" output="screen">
-
-      <param name="joint_command_topic" type="string" value="$(arg joint_command_topic)"/>
-
-      <param name="service_get_joints" type="string" value="$(arg get_joints_service)"/>
-
-      <param name="desired_pose_twist_topic" type="string" value="$(arg desired_pose_twist_topic)"/>
-
-      <param name="desired_q_topic" type="string" value="$(arg desired_q_topic)"/>
-
-      <param name="set_mode_service" type="string" value="$(arg set_mode_service)"/>
-
-      <param name="get_status_service" type="string" value="$(arg get_status_service)"/>
-
-      <param name="set_params_service" type="string" value="$(arg set_params_service)"/>
 
       <param name="clik_gain" value="$(arg clik_gain)"/>
 
@@ -79,11 +45,15 @@
 
       <param name="second_obj_gain" value="$(arg second_obj_gain)"/>
 
+      <!--
       <rosparam param="joint_target_robot" subst_value="true">$(arg joint_target_robot)</rosparam>
+      -->
 
       <rosparam param="joint_weights" subst_value="true">$(arg joint_weights)</rosparam>
 
+      <!--
       <rosparam param="mask_cartesian" subst_value="true">$(arg mask_cartesian)</rosparam>
+      -->
 
       <rosparam param="n_T_e_position" subst_value="true">$(arg n_T_e_position)</rosparam>
       <rosparam param="n_T_e_quaternion" subst_value="true">$(arg n_T_e_quaternion)</rosparam>
