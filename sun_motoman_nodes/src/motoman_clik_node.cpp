@@ -3,6 +3,8 @@
 #include "sun_robot_ros/CLIK_Node.h"
 #include "motoman_interface/JointPositionVelocity.h"
 #include "motoman_interface/GetJoints.h"
+#include "sensor_msgs/JointState.h"
+#include "geometry_msgs/PoseStamped.h"
 
 using namespace std;
 using namespace TooN;
@@ -38,8 +40,38 @@ using namespace TooN;
 
 /*GLOBAL ROS VARS*/
 ros::Publisher pub_joints;
+ros::Publisher pub_pose;
 ros::ServiceClient serviceGetJoint;
 /*END Global ROS Vars*/
+
+CLIK_Node* clik_node;
+
+Vector<7> qR;
+void readJointState( const sensor_msgs::JointState::ConstPtr& joi_state_msg ){
+
+    for(int i=0; i<7; i++)
+        qR[i] = joi_state_msg->position[i];
+
+    Matrix<4,4> b_T_e = clik_node->getRobot()->fkine( clik_node->getRobot()->joints_Robot2DH(qR) );
+
+    UnitQuaternion uq(b_T_e);
+    Vector<3> p = transl(b_T_e);
+
+    geometry_msgs::PoseStamped out_msg;
+
+    out_msg.header = joi_state_msg->header;
+    out_msg.pose.position.x = p[0];
+    out_msg.pose.position.y = p[1];
+    out_msg.pose.position.z = p[2];
+    out_msg.pose.orientation.w = uq.getS();
+    Vector<3> uq_v = uq.getV();
+    out_msg.pose.orientation.x = uq_v[0];
+    out_msg.pose.orientation.y = uq_v[1];
+    out_msg.pose.orientation.z = uq_v[2];
+
+    pub_pose.publish(out_msg);
+    
+}
 
 Vector<> getJointPosition_fcn(){
     
@@ -103,11 +135,19 @@ int main(int argc, char *argv[])
     //params
     string topic_joint_command_str;
     nh_private.param("joint_command_topic" , topic_joint_command_str, string("simple_joint_command") );
+    string topic_ee_pose_str;
+    nh_private.param("ee_pose_topic" , topic_ee_pose_str, string("ee_pose") );
     string service_get_joints_str;
     nh_private.param("service_get_joints" , service_get_joints_str, string("getJoints") );
+    string joint_state_topic_str;
+    nh_private.param("joint_state_topic" , joint_state_topic_str, string("joint_states") );
+
+    //Subscribers
+    ros::Subscriber joint_position_sub = nh_public.subscribe(joint_state_topic_str, 1, readJointState);
     
     //Publishers
     pub_joints = nh_public.advertise<motoman_interface::JointPositionVelocity>(topic_joint_command_str, 1);
+    pub_pose = nh_public.advertise<geometry_msgs::PoseStamped>(topic_ee_pose_str, 1);
 
     //Service
     serviceGetJoint = nh_public.serviceClient<motoman_interface::GetJoints>(service_get_joints_str);
@@ -116,7 +156,7 @@ int main(int argc, char *argv[])
     serviceGetJoint.waitForExistence();
     cout << HEADER_PRINT GREEN "Service getJoint online!" CRESET << endl;
     
-    CLIK_Node clik_node(
+    clik_node = new CLIK_Node(
             MotomanSIA5F( "SIA5F" ),
             nh_public,
             nh_private,
@@ -124,7 +164,9 @@ int main(int argc, char *argv[])
             publish_fcn
             );
 
-    clik_node.run();
+    clik_node->run();
+
+    delete clik_node;
 
     return 0;
 }
