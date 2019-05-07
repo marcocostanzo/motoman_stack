@@ -33,7 +33,7 @@
 #define HEADER_PRINT BOLDYELLOW "[" << ros::this_node::getName() << "] " CRESET 
 
 #define NUM_JOINTS 7
-#define COMMAND_RATE 50
+#define COMMAND_RATE 50.0
 
 using namespace std;
 
